@@ -27,17 +27,13 @@ public class QueueSchema implements Schema {
             for (var queueKey : receivers.keySet()) {
                 var queue = data.getOrDefault(queueKey, new LinkedBlockingQueue<>());
                 var receiversByQueue = receivers.get(queueKey);
-                var it = receiversByQueue.iterator();
-                while (it.hasNext()) {
+                int i = 0;
+                while (!queue.isEmpty()) {
                     var data = queue.poll();
-                    if (data != null) {
-                        it.next().receive(data);
-                    }
-                    if (data == null) {
-                        break;
-                    }
-                    if (!it.hasNext()) {
-                        it = receiversByQueue.iterator();
+                    Receiver receiver = receiversByQueue.get(i++);
+                    receiver.receive(data);
+                    if (i >= receiversByQueue.size()) {
+                        i = 0;
                     }
                 }
             }
